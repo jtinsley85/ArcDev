@@ -1,8 +1,8 @@
-import React, { Fragment, useState, ChangeEvent } from 'react';
-//Material-UI
+import React, { Fragment, useState, ChangeEvent, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, useScrollTrigger, makeStyles, Tabs, Tab, Button } from '@material-ui/core'
-//Components
 import logo from '../../assets/logo.svg';
+import { routePaths } from '../Routes'
 
 //TYPES
 interface HeaderProps {
@@ -28,7 +28,13 @@ const useStyles = makeStyles(theme => ({
     marginBottom: '3em'
   },
   logo: {
-    height: '7em'
+    height: '8em'
+  },
+  logoContainer: {
+    padding: 0,
+    "&:hover": {
+      backgroundColor: 'transparent',
+    }
   },
   tabContainer: {
     marginLeft: 'auto'
@@ -58,26 +64,66 @@ const Header: React.FC = () => {
     setTabValue(newValue);
   };
 
+  useEffect(() => {   //set routes
+
+    const currentPath = window.location.pathname;
+
+    switch (currentPath) {
+      case "/":
+        (tabValue !== 0) && setTabValue(0);
+        break;
+      case "/services":
+        (tabValue !== 1) && setTabValue(1)
+        break;
+      case "/revolution":
+        (tabValue !== 2) && setTabValue(2)
+        break;
+      case "/about":
+        (tabValue !== 3) && setTabValue(3)
+        break;
+      case "/contact":
+        (tabValue !== 4) && setTabValue(4)
+        break;
+      case "/estimate":
+        (tabValue !== 5) && setTabValue(5)
+        break;
+      default: setTabValue(0) //go to home if navigated weirdly.
+    }
+  }, [tabValue]);
+
+  const renderTabs = (
+    routePaths.map((routePath, idx) => {
+      if (routePath.tab === true) {
+        return (
+          <Tab
+            key={routePath.name + 'tab'}
+            className={classes.tab}
+            label={routePath.name}
+            component={Link}
+            to={routePath.path} />
+        )
+      }
+      return null;
+    })
+  )
+
   return (
     <Fragment>
       <ElevationScroll>
         <AppBar position="fixed">
           <Toolbar disableGutters>
-            <img className={classes.logo} src={logo} alt="company logo" />
-            <Tabs
-              className={classes.tabContainer}
-              value={tabValue}
-              onChange={handleTabChange}
-              aria-label="navigation tabs"
-              indicatorColor="primary"
-            >
-              <Tab className={classes.tab} label="Home" />
-              <Tab className={classes.tab} label="Services" />
-              <Tab className={classes.tab} label="The Revolution" />
-              <Tab className={classes.tab} label="About Us" />
-              <Tab className={classes.tab} label="Contact Us" />
+            <Button className={classes.logoContainer} onClick={() => setTabValue(0)} component={Link} to="/">
+              <img className={classes.logo} src={logo} alt="company logo" />
+            </Button>
+            <Tabs className={classes.tabContainer} value={tabValue}
+              onChange={handleTabChange} aria-label="navigation tabs" indicatorColor="primary">
+              {renderTabs}
             </Tabs>
-            <Button variant='contained' color='secondary' className={classes.button}>
+            <Button
+              variant='contained'
+              color='secondary'
+              className={classes.button}
+            >
               Free Estimate
             </Button>
           </Toolbar>
